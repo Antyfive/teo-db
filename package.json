@@ -1,0 +1,37 @@
+{
+  "name": "teo-db",
+  "version": "1.0.0",
+  "description": "Teo.JS DB driver",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --require ./test/common.js --reporter spec --ui bdd --recursive --colors --timeout 5000 --slow 300"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Antyfive/teo-db.git"
+  },
+  "keywords": [
+    "Teo.JS",
+    "db",
+    "database",
+    "driver"
+  ],
+  "author": "Andrew Teologov <teologov.and@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Antyfive/teo-db/issues"
+  },
+  "homepage": "https://github.com/Antyfive/teo-db#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "short-async": "^1.0.1",
+    "sinon": "^1.17.3"
+  },
+  "engines": {
+    "node": ">= 4"
+  },
+  "dependencies": {
+    "teo-base": "^1.0.1"
+  }
+}
