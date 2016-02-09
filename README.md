@@ -1,2 +1,2 @@
 # teo-db
-Teo.JS DB driver
+[Teo.JS](https://github.com/Antyfive/teo.js) DB driver
