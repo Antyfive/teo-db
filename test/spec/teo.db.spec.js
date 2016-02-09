@@ -15,12 +15,14 @@ const Db = require("../../lib/teo.db"),
 
 describe("Testing teo.db", () => {
 
-    let loadOrmStub, createOrmStub, db;
+    let loadOrmStub, createOrmStub, db, loadOrmFileStub;
 
     beforeEach(() => {
 
         loadOrmStub = sinon.stub(Db.prototype, "loadOrm", () => {});
         createOrmStub = sinon.stub(Db.prototype, "createOrm", () => {});
+        loadOrmFileStub = sinon.stub(Db.prototype, "loadOrmFile", () => {});
+
         db = new Db({
             enabled: true,
             ormName: "waterline",
@@ -50,6 +52,7 @@ describe("Testing teo.db", () => {
 
         loadOrmStub.restore();
         createOrmStub.restore();
+        loadOrmFileStub.restore();
 
     });
 
@@ -117,6 +120,108 @@ describe("Testing teo.db", () => {
                 }
             }
         }, "ORM adapter config is not correct");
+
+    });
+
+    it("Should load ORM file if config.ormModule isn't set", () => {
+
+        loadOrmStub.restore();
+        let db = new Db({
+            enabled: true,
+            adapterConfig: {
+                adapters: {
+
+                },
+                connections: {
+
+                }
+            },
+            ormPath: "./path",
+            ormPrefix: "my.prefix.",
+            ormName: "myName"
+        });
+
+        assert.isTrue(loadOrmFileStub.calledOnce);
+        assert.equal(loadOrmFileStub.args[0][0], "path/my.prefix.myname");
+
+    });
+
+    it("Should load ORM module if config.ormModule is set", () => {
+
+        loadOrmStub.restore();
+        let db = new Db({
+            enabled: true,
+            adapterConfig: {
+                adapters: {
+
+                },
+                connections: {
+
+                }
+            },
+            ormModule: "my-module"
+        });
+
+        assert.isTrue(loadOrmFileStub.calledOnce);
+        assert.equal(loadOrmFileStub.args[0][0], "my-module");
+
+    });
+
+    it("Should set path based on current working directory of the process if no config.ormPath passed", () => {
+
+        loadOrmStub.restore();
+        let db = new Db({
+            enabled: true,
+            adapterConfig: {
+                adapters: {
+
+                },
+                connections: {
+
+                }
+            },
+            ormPrefix: "my.prefix.",
+            ormName: "myName"
+        });
+
+        assert.isTrue(loadOrmFileStub.calledOnce);
+        assert.equal(loadOrmFileStub.args[0][0], path.join(db.homeDir, "orm", "my.prefix.myname"));
+
+    });
+
+    it("Should create new orm instance", () => {
+
+        createOrmStub.restore();
+
+        db.Orm = function orm() {};
+
+        let instance = db.createOrm();
+
+        assert.instanceOf(instance, db.Orm);
+        assert.instanceOf(db.instance, db.Orm);
+
+    });
+
+    it("Shouldn't load and create orm if config.enabled is false", () => {
+
+        loadOrmStub.reset();
+        createOrmStub.reset();
+
+        let db = new Db({
+            adapterConfig: {
+                adapters: {
+
+                },
+                connections: {
+
+                }
+            },
+            ormPrefix: "my.prefix.",
+            ormName: "myName"
+        });
+
+        assert.isFalse(loadOrmStub.called);
+        assert.isFalse(createOrmStub.called);
 
     });
 
