@@ -10,7 +10,8 @@
 
 "use strict";
 
-const Db = require("../../lib/teo.db");
+const Db = require("../../lib/teo.db"),
+    path = require("path");
 
 describe("Testing teo.db", () => {
 
@@ -96,10 +97,10 @@ describe("Testing teo.db", () => {
 
     it("Should parse config correctly", () => {
 
-        assert.equal(db.ormPath, "./orm", "ORM path is not correct");
-        assert.equal(db.ormPrefix, "teo.db.orm.", "ORM prefix is not correct");
-        assert.equal(db.adapterName, "teo.db.adapter.waterline", "ORM adapter name is not correct");
-        assert.deepEqual(db.adapterConfig, {
+        assert.equal(db.config.ormPath, path.join(db.homeDir, "orm"), "Default ORM path should be set to the 'homeDir/orm'");
+        assert.equal(db.config.ormPrefix, "teo.db.orm.", "Default ORM prefix should be teo.db.orm.");
+        assert.equal(db.config.adapterName, "teo.db.adapter.waterline", "ORM adapter name is not correct");
+        assert.deepEqual(db.config.adapterConfig, {
             adapters: {
                 "default": "sails-disk",
                 disk: "sails-disk",
