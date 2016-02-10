@@ -25,9 +25,8 @@ describe("Testing teo.db", () => {
 
         db = new Db({
             enabled: true,
-            ormName: "waterline",
-            adapterName: "teo.db.adapter.waterline",
             adapterConfig: {
+                adapterName: "teo.db.adapter.waterline",
                 adapters: {
                     "default": "sails-disk",
                     disk: "sails-disk",
@@ -43,6 +42,9 @@ describe("Testing teo.db", () => {
                         database: "foobar"
                     }
                 }
+            },
+            ormConfig: {
+                ormName: "waterline"
             }
         });
 
@@ -74,9 +76,12 @@ describe("Testing teo.db", () => {
 
         new Db({
             enabled: false,
-            ormName: "waterline",
-            adapterName: "teo.db.adapter.waterline",
-            adapterConfig: {}
+            adapterConfig: {
+                adapterName: "teo.db.adapter.waterline"
+            },
+            ormConfig: {
+                ormName: "waterline"
+            }
         });
 
         assert.isFalse(loadOrmStub.calledOnce, "Load ORM method should not be called");
@@ -89,9 +94,12 @@ describe("Testing teo.db", () => {
 
         new Db({
             enabled: false,
-            ormName: "waterline",
-            adapterName: "teo.db.adapter.waterline",
-            adapterConfig: {}
+            adapterConfig: {
+                adapterName: "teo.db.adapter.waterline"
+            },
+            ormConfig: {
+                ormName: "waterline"
+            }
         });
 
         assert.isFalse(createOrmStub.calledOnce, "Create ORM method should not be called");
@@ -100,10 +108,11 @@ describe("Testing teo.db", () => {
 
     it("Should parse config correctly", () => {
 
-        assert.equal(db.config.ormPath, path.join(db.homeDir, "orm"), "Default ORM path should be set to the 'homeDir/orm'");
-        assert.equal(db.config.ormPrefix, "teo.db.orm.", "Default ORM prefix should be teo.db.orm.");
-        assert.equal(db.config.adapterName, "teo.db.adapter.waterline", "ORM adapter name is not correct");
+        assert.equal(db.config.ormConfig.ormPath, path.join(db.homeDir, "orm"), "Default ORM path should be set to the 'homeDir/orm'");
+        assert.equal(db.config.ormConfig.ormPrefix, "teo.db.orm.", "Default ORM prefix should be teo.db.orm.");
+        assert.equal(db.config.adapterConfig.adapterName, "teo.db.adapter.waterline", "ORM adapter name is not correct");
         assert.deepEqual(db.config.adapterConfig, {
+            adapterName: "teo.db.adapter.waterline",
             adapters: {
                 "default": "sails-disk",
                 disk: "sails-disk",
@@ -136,9 +145,11 @@ describe("Testing teo.db", () => {
 
                 }
             },
-            ormPath: "./path",
-            ormPrefix: "my.prefix.",
-            ormName: "myName"
+            ormConfig: {
+                ormPath: "./path",
+                ormPrefix: "my.prefix.",
+                ormName: "myName"
+            }
         });
 
         assert.isTrue(loadOrmFileStub.calledOnce);
@@ -159,7 +170,9 @@ describe("Testing teo.db", () => {
 
                 }
             },
-            ormModule: "my-module"
+            ormConfig: {
+                ormModule: "my-module"
+            }
         });
 
         assert.isTrue(loadOrmFileStub.calledOnce);
@@ -180,8 +193,10 @@ describe("Testing teo.db", () => {
 
                 }
             },
-            ormPrefix: "my.prefix.",
-            ormName: "myName"
+            ormConfig: {
+                ormPrefix: "my.prefix.",
+                ormName: "myName"
+            }
         });
 
         assert.isTrue(loadOrmFileStub.calledOnce);
@@ -216,8 +231,10 @@ describe("Testing teo.db", () => {
 
                 }
             },
-            ormPrefix: "my.prefix.",
-            ormName: "myName"
+            ormConfig: {
+                ormPrefix: "my.prefix.",
+                ormName: "myName"
+            }
         });
 
         assert.isFalse(loadOrmStub.called);
