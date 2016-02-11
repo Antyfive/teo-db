@@ -15,13 +15,13 @@ const Db = require("../../lib/teo.db"),
 
 describe("Testing teo.db", () => {
 
-    let loadOrmStub, createOrmStub, db, loadOrmFileStub;
+    let loadAdapterStub, createAdapterStub, db, loadAdapterFileStub;
 
     beforeEach(() => {
 
-        loadOrmStub = sinon.stub(Db.prototype, "loadOrm", () => {});
-        createOrmStub = sinon.stub(Db.prototype, "createOrm", () => {});
-        loadOrmFileStub = sinon.stub(Db.prototype, "loadOrmFile", () => {});
+        loadAdapterStub = sinon.stub(Db.prototype, "loadAdapter", () => {});
+        createAdapterStub = sinon.stub(Db.prototype, "createAdapter", () => {});
+        loadAdapterFileStub = sinon.stub(Db.prototype, "loadAdapterFile", () => {});
 
         db = new Db({
             enabled: true,
@@ -42,9 +42,6 @@ describe("Testing teo.db", () => {
                         database: "foobar"
                     }
                 }
-            },
-            ormConfig: {
-                ormName: "waterline"
             }
         });
 
@@ -52,67 +49,64 @@ describe("Testing teo.db", () => {
 
     afterEach(() => {
 
-        loadOrmStub.restore();
-        createOrmStub.restore();
-        loadOrmFileStub.restore();
+        loadAdapterStub.restore();
+        createAdapterStub.restore();
+        loadAdapterFileStub.restore();
 
     });
 
-    it("Should call load ORM", () => {
+    it("Should call load Adapter", () => {
 
-        assert.isTrue(loadOrmStub.calledOnce, "Load ORM method should be called");
-
-    });
-
-    it("Should call load ORM", () => {
-
-        assert.isTrue(createOrmStub.calledOnce, "Create ORM method should be called");
+        assert.isTrue(loadAdapterStub.calledOnce, "Load Adapter method should be called");
 
     });
 
-    it("Should not call load ORM", () => {
+    it("Should call create Adapter", () => {
 
-        loadOrmStub.reset();
+        assert.isTrue(createAdapterStub.calledOnce, "Create Adapter method should be called");
+
+    });
+
+    it("Should call load Adapter", () => {
+
+        loadAdapterStub.reset();
+
+        new Db({
+            enabled: false,
+            adapterConfig: {
+                adapterName: "waterline"
+            }
+        });
+
+        assert.isFalse(loadAdapterStub.calledOnce, "Load Adapter method should not be called");
+
+    });
+
+    it("Should call create Adapter", () => {
+
+        createAdapterStub.reset();
 
         new Db({
             enabled: false,
             adapterConfig: {
                 adapterName: "teo.db.adapter.waterline"
-            },
-            ormConfig: {
-                ormName: "waterline"
             }
         });
 
-        assert.isFalse(loadOrmStub.calledOnce, "Load ORM method should not be called");
-
-    });
-
-    it("Should not call load ORM", () => {
-
-        createOrmStub.reset();
-
-        new Db({
-            enabled: false,
-            adapterConfig: {
-                adapterName: "teo.db.adapter.waterline"
-            },
-            ormConfig: {
-                ormName: "waterline"
-            }
-        });
-
-        assert.isFalse(createOrmStub.calledOnce, "Create ORM method should not be called");
+        assert.isFalse(createAdapterStub.calledOnce, "Create Adapter method should not be called");
 
     });
 
     it("Should parse config correctly", () => {
 
-        assert.equal(db.config.ormConfig.ormPath, path.join(db.homeDir, "orm"), "Default ORM path should be set to the 'homeDir/orm'");
-        assert.equal(db.config.ormConfig.ormPrefix, "teo.db.orm.", "Default ORM prefix should be teo.db.orm.");
-        assert.equal(db.config.adapterConfig.adapterName, "teo.db.adapter.waterline", "ORM adapter name is not correct");
+        assert.equal(db.config.adapterConfig.adapterPath, path.join(db.homeDir, "adapters"), "Default Adapter path should be set to the 'homeDir/adapters'");
+        assert.equal(db.config.adapterConfig.adapterPrefix, "teo.db.adapter.", "Default Adapter prefix should be teo.db.adapter.");
+        assert.equal(db.config.adapterConfig.adapterName, "teo.db.adapter.waterline", "Adapter adapter name is not correct");
         assert.deepEqual(db.config.adapterConfig, {
             adapterName: "teo.db.adapter.waterline",
+            adapterModule: undefined,
+            adapterPath: "/Users/teologov/Sites/personal/github/teo-db/adapters",
+            adapterPrefix: "teo.db.adapter.",
             adapters: {
                 "default": "sails-disk",
                 disk: "sails-disk",
@@ -128,13 +122,13 @@ describe("Testing teo.db", () => {
                     database: "foobar"
                 }
             }
-        }, "ORM adapter config is not correct");
+        }, "Adapter adapter config is not correct");
 
     });
 
-    it("Should load ORM file if config.ormModule isn't set", () => {
+    it("Should load Adapter file if config.adapterModule isn't set", () => {
 
-        loadOrmStub.restore();
+        loadAdapterStub.restore();
         let db = new Db({
             enabled: true,
             adapterConfig: {
@@ -143,23 +137,21 @@ describe("Testing teo.db", () => {
                 },
                 connections: {
 
-                }
+                },
+                adapterPath: "./path",
+                adapterPrefix: "my.prefix.",
+                adapterName: "myName"
             },
-            ormConfig: {
-                ormPath: "./path",
-                ormPrefix: "my.prefix.",
-                ormName: "myName"
-            }
         });
 
-        assert.isTrue(loadOrmFileStub.calledOnce);
-        assert.equal(loadOrmFileStub.args[0][0], "path/my.prefix.myname");
+        assert.isTrue(loadAdapterFileStub.calledOnce);
+        assert.equal(loadAdapterFileStub.args[0][0], "path/my.prefix.myname");
 
     });
 
-    it("Should load ORM module if config.ormModule is set", () => {
+    it("Should load Adapter module if config.adapterModule is set", () => {
 
-        loadOrmStub.restore();
+        loadAdapterStub.restore();
         let db = new Db({
             enabled: true,
             adapterConfig: {
@@ -168,21 +160,19 @@ describe("Testing teo.db", () => {
                 },
                 connections: {
 
-                }
-            },
-            ormConfig: {
-                ormModule: "my-module"
+                },
+                adapterModule: "my-module"
             }
         });
 
-        assert.isTrue(loadOrmFileStub.calledOnce);
-        assert.equal(loadOrmFileStub.args[0][0], "my-module");
+        assert.isTrue(loadAdapterFileStub.calledOnce);
+        assert.equal(loadAdapterFileStub.args[0][0], "my-module");
 
     });
 
-    it("Should set path based on current working directory of the process if no config.ormPath passed", () => {
+    it("Should set path based on current working directory of the process if no config.adapterPath passed", () => {
 
-        loadOrmStub.restore();
+        loadAdapterStub.restore();
         let db = new Db({
             enabled: true,
             adapterConfig: {
@@ -191,36 +181,34 @@ describe("Testing teo.db", () => {
                 },
                 connections: {
 
-                }
-            },
-            ormConfig: {
-                ormPrefix: "my.prefix.",
-                ormName: "myName"
+                },
+                adapterPrefix: "my.prefix.",
+                adapterName: "myName"
             }
         });
 
-        assert.isTrue(loadOrmFileStub.calledOnce);
-        assert.equal(loadOrmFileStub.args[0][0], path.join(db.homeDir, "orm", "my.prefix.myname"));
+        assert.isTrue(loadAdapterFileStub.calledOnce);
+        assert.equal(loadAdapterFileStub.args[0][0], path.join(db.homeDir, "adapters", "my.prefix.myname"));
 
     });
 
-    it("Should create new orm instance", () => {
+    it("Should create new adapter instance", () => {
 
-        createOrmStub.restore();
+        createAdapterStub.restore();
 
-        db.Orm = function orm() {};
+        db.Adapter = function adapter() {};
 
-        let instance = db.createOrm();
+        let instance = db.createAdapter();
 
-        assert.instanceOf(instance, db.Orm);
-        assert.instanceOf(db.instance, db.Orm);
+        assert.instanceOf(instance, db.Adapter);
+        assert.instanceOf(db.instance, db.Adapter);
 
     });
 
-    it("Shouldn't load and create orm if config.enabled is false", () => {
+    it("Shouldn't load and create adapter if config.enabled is false", () => {
 
-        loadOrmStub.reset();
-        createOrmStub.reset();
+        loadAdapterStub.reset();
+        createAdapterStub.reset();
 
         let db = new Db({
             adapterConfig: {
@@ -229,16 +217,14 @@ describe("Testing teo.db", () => {
                 },
                 connections: {
 
-                }
-            },
-            ormConfig: {
-                ormPrefix: "my.prefix.",
-                ormName: "myName"
+                },
+                adapterPrefix: "my.prefix.",
+                adapterName: "myName"
             }
         });
 
-        assert.isFalse(loadOrmStub.called);
-        assert.isFalse(createOrmStub.called);
+        assert.isFalse(loadAdapterStub.called);
+        assert.isFalse(createAdapterStub.called);
 
     });
 
