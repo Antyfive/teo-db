@@ -1,6 +1,6 @@
 {
   "name": "teo-db",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Teo.JS DB driver",
   "main": "index.js",
   "scripts": {
